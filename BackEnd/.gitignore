@@ -21,7 +21,6 @@ venv_311/
 
 # Environment variables
 .env
-.env.*
 
 # Mypy / Pylint / Coverage / Testing
 .mypy_cache/
