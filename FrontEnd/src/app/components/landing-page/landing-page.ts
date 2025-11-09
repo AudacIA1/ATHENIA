@@ -324,4 +324,14 @@ export class LandingPage implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  mobileMenuOpen = false;
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+  }
+
 }
