@@ -41,6 +41,7 @@ fsspec==2025.9.0
 git-filter-repo==2.47.0
 google-auth==2.41.1
 google-genai==1.46.0
+google-generativeai
 googleapis-common-protos==1.71.0
 greenlet==3.2.4
 grpcio==1.76.0

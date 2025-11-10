@@ -229,9 +229,6 @@ export class AtheniaVoice implements OnDestroy {
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-
-
-  
     * {
       margin: 0;
       padding: 0;
@@ -240,7 +237,7 @@ export class AtheniaVoice implements OnDestroy {
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+      background: #070025;
       color: #1f2937;
       min-height: 100vh;
       padding: 24px;
@@ -256,7 +253,6 @@ export class AtheniaVoice implements OnDestroy {
       width: 460px;
       animation: fadeIn 0.4s ease;
       position: relative;
-      overflow: hidden;
     }
 
     .container::before {
@@ -271,12 +267,9 @@ export class AtheniaVoice implements OnDestroy {
     }
 
     @keyframes gradientShift {
-
-      0%,
-      100% {
+      0%, 100% {
         background-position: 0% 50%;
       }
-
       50% {
         background-position: 100% 50%;
       }
@@ -287,7 +280,6 @@ export class AtheniaVoice implements OnDestroy {
         opacity: 0;
         transform: translateY(20px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
@@ -325,7 +317,7 @@ export class AtheniaVoice implements OnDestroy {
       font-weight: 600;
     }
 
-    /* === Visualizador de esfera mejorado === */
+    /* === Visualizador con neumorphism === */
     .visualizer {
       height: 240px;
       display: flex;
@@ -335,179 +327,127 @@ export class AtheniaVoice implements OnDestroy {
       position: relative;
     }
 
-    /* Capa de resplandor exterior */
-    .glow-layer {
-      position: absolute;
-      width: 280px;
-      height: 280px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(100, 149, 237, 0.15) 0%, transparent 70%);
-      filter: blur(40px);
-      pointer-events: none;
-      transition: all 0.6s ease;
-    }
-
-    /* Esfera principal */
+    /* Esfera principal con diseño neumorphism */
     .sphere {
       width: 160px;
       height: 160px;
       border-radius: 50%;
       position: relative;
-      overflow: visible;
       transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Estado INACTIVO – Azul elegante y tranquilo */
+    /* Estado INACTIVO – Neumorphism azul elegante */
     .sphere.idle {
-      background: radial-gradient(circle at 58% 22%,
-          rgba(170, 220, 255, 0.9) 0%,
-          rgba(100, 180, 255, 0.8) 40%,
-          rgba(60, 130, 210, 0.7) 75%,
-          rgba(25, 90, 190, 0.6) 100%);
+      background: #1e293b;
       box-shadow:
-        0 10px 40px rgba(100, 180, 255, 0.25),
-        inset 0 -15px 30px rgba(0, 0, 0, 0.15),
-        0 0 80px rgba(100, 180, 255, 0.4),
-        0 0 150px rgba(60, 130, 210, 0.3);
+        12px 12px 24px rgba(0, 0, 0, 0.5),
+        -12px -12px 24px rgba(45, 60, 85, 0.4),
+        inset 4px 4px 8px rgba(0, 0, 0, 0.3),
+        inset -4px -4px 8px rgba(60, 80, 110, 0.3),
+        0 0 80px rgba(100, 180, 255, 0.3);
       animation: gentlePulse 4s ease-in-out infinite;
     }
 
-    .sphere.idle+.glow-layer {
-      background: radial-gradient(circle, rgba(100, 180, 255, 0.2) 0%, transparent 70%);
-    }
-
     @keyframes gentlePulse {
-
-      0%,
-      100% {
+      0%, 100% {
         transform: scale(1);
-        opacity: 0.9;
-        filter: brightness(1);
+        box-shadow:
+          12px 12px 24px rgba(0, 0, 0, 0.5),
+          -12px -12px 24px rgba(45, 60, 85, 0.4),
+          inset 4px 4px 8px rgba(0, 0, 0, 0.3),
+          inset -4px -4px 8px rgba(60, 80, 110, 0.3),
+          0 0 80px rgba(100, 180, 255, 0.3);
       }
-
       50% {
         transform: scale(1.03);
-        opacity: 1;
-        filter: brightness(1.15);
+        box-shadow:
+          14px 14px 28px rgba(0, 0, 0, 0.5),
+          -14px -14px 28px rgba(45, 60, 85, 0.4),
+          inset 4px 4px 8px rgba(0, 0, 0, 0.3),
+          inset -4px -4px 8px rgba(60, 80, 110, 0.3),
+          0 0 100px rgba(100, 180, 255, 0.4);
       }
     }
 
-    /* Estado ESCUCHANDO – Morado brillante con energía tecnológica */
+    /* Estado ESCUCHANDO – Neumorphism morado brillante */
     .sphere.listening {
-      background: radial-gradient(circle at 58% 22%,
-          rgba(200, 90, 255, 0.95) 0%,
-          rgba(165, 70, 255, 0.85) 40%,
-          rgba(125, 45, 255, 0.75) 75%,
-          rgba(95, 35, 220, 0.65) 100%);
+      background: #1e293b;
       box-shadow:
-        0 0 60px rgba(160, 70, 255, 0.6),
-        0 0 110px rgba(125, 45, 255, 0.4),
-        0 0 160px rgba(95, 35, 220, 0.2),
-        inset 0 -15px 30px rgba(0, 0, 0, 0.25);
+        14px 14px 28px rgba(0, 0, 0, 0.6),
+        -14px -14px 28px rgba(50, 40, 70, 0.5),
+        inset 6px 6px 12px rgba(0, 0, 0, 0.4),
+        inset -6px -6px 12px rgba(120, 60, 200, 0.4),
+        0 0 100px rgba(160, 70, 255, 0.7),
+        0 0 150px rgba(125, 45, 255, 0.5);
       animation: activeFlicker 1.5s ease-in-out infinite;
       transform: scale(1.15);
     }
 
-    .sphere.listening+.glow-layer {
-      background: radial-gradient(circle, rgba(160, 70, 255, 0.25) 0%, transparent 70%);
-      filter: blur(50px);
-    }
-
     @keyframes activeFlicker {
-
-      0%,
-      100% {
-        filter: brightness(1) saturate(1.3);
+      0%, 100% {
+        filter: brightness(1.1) saturate(1.3);
       }
-
       50% {
-        filter: brightness(1.25) saturate(1.5);
+        filter: brightness(1.3) saturate(1.5);
       }
     }
 
-    /* Estado HABLANDO – Verde esmeralda moderno y fluido */
+    /* Estado HABLANDO – Neumorphism verde esmeralda */
     .sphere.speaking {
-      background: radial-gradient(circle at 58% 22%,
-          rgba(100, 255, 190, 0.95) 0%,
-          rgba(45, 200, 140, 0.88) 40%,
-          rgba(25, 160, 120, 0.78) 75%,
-          rgba(15, 120, 100, 0.68) 100%);
+      background: #1e293b;
       box-shadow:
-        0 0 60px rgba(45, 200, 140, 0.7),
-        0 0 120px rgba(25, 160, 120, 0.5),
-        0 0 180px rgba(15, 120, 100, 0.3),
-        inset 0 -15px 30px rgba(0, 0, 0, 0.2);
+        14px 14px 28px rgba(0, 0, 0, 0.6),
+        -14px -14px 28px rgba(30, 60, 55, 0.5),
+        inset 6px 6px 12px rgba(0, 0, 0, 0.4),
+        inset -6px -6px 12px rgba(60, 180, 140, 0.4),
+        0 0 100px rgba(45, 200, 140, 0.8),
+        0 0 160px rgba(25, 160, 120, 0.6);
       animation: speakingGlow 0.8s ease-in-out infinite;
       transform: scale(1.1);
     }
 
-    .sphere.speaking+.glow-layer {
-      background: radial-gradient(circle, rgba(45, 200, 140, 0.3) 0%, transparent 70%);
-      filter: blur(55px);
-    }
-
     @keyframes speakingGlow {
-
-      0%,
-      100% {
+      0%, 100% {
         filter: brightness(1.15) saturate(1.4);
       }
-
       50% {
         filter: brightness(1.35) saturate(1.6);
       }
     }
 
-    /* Capa de resplandor adicional */
-    .sphere::after {
-      content: '';
-      position: absolute;
-      width: 140%;
-      height: 140%;
-      top: -20%;
-      left: -20%;
-      border-radius: 50%;
-      background: radial-gradient(circle,
-          rgba(255, 255, 255, 0.15) 0%,
-          transparent 65%);
-      filter: blur(25px);
-      pointer-events: none;
-    }
-
-    /* Anillos orbitales */
+    /* Anillos orbitales sin contenedor */
     .orbit-ring {
       position: absolute;
-      border: 1.5px solid rgba(20, 29, 49, 0.25);
+      border: 1.5px solid rgba(100, 149, 237, 0.2);
       border-radius: 50%;
       pointer-events: none;
+      top: 50%;
+      left: 50%;
     }
 
     .orbit-ring:nth-child(1) {
       width: 200px;
       height: 200px;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      margin-left: -100px;
+      margin-top: -100px;
       animation: rotateOrbit 8s linear infinite;
     }
 
     .orbit-ring:nth-child(2) {
       width: 240px;
       height: 240px;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      margin-left: -120px;
+      margin-top: -120px;
       animation: rotateOrbit 12s linear infinite reverse;
       opacity: 0.6;
     }
 
     @keyframes rotateOrbit {
       from {
-        transform: translate(-50%, -50%) rotate(0deg);
+        transform: rotate(0deg);
       }
-
       to {
-        transform: translate(-50%, -50%) rotate(360deg);
+        transform: rotate(360deg);
       }
     }
 
@@ -630,21 +570,20 @@ export class AtheniaVoice implements OnDestroy {
       cursor: not-allowed;
     }
 
-    /* Ocultar marcador flotante de Google (traducción / marcador azul) */
-iframe.goog-te-banner-frame,
-.goog-te-banner-frame.skiptranslate,
-.goog-te-gadget-icon,
-.goog-tooltip,
-.goog-te-balloon-frame,
-.goog-te-menu-frame,
-.VIpgJd-ZVi9od-ORHb-OEVmcd {
-  display: none !important;
-}
+    /* Ocultar marcador flotante de Google */
+    iframe.goog-te-banner-frame,
+    .goog-te-banner-frame.skiptranslate,
+    .goog-te-gadget-icon,
+    .goog-tooltip,
+    .goog-te-balloon-frame,
+    .goog-te-menu-frame,
+    .VIpgJd-ZVi9od-ORHb-OEVmcd {
+      display: none !important;
+    }
 
-body {
-  top: 0 !important;
-}
-
+    body {
+      top: 0 !important;
+    }
   </style>
 </head>
 
@@ -662,7 +601,6 @@ body {
         <div class="small-orb"></div>
       </div>
       <div class="sphere idle" id="sphere"></div>
-      <div class="glow-layer"></div>
     </div>
 
     <div class="messages-container" id="messages"></div>
@@ -691,58 +629,58 @@ body {
     btnStop.addEventListener('click', () => sendToParent('STOP_SPEAKING'));
     btnClear.addEventListener('click', () => sendToParent('CLEAR'));
     window.addEventListener('message', (event) => {
-          const {
-            type,
-            isListening,
-            isSpeaking,
-            transcript,
-            response
-          } = event.data;
-          if (type !== 'UPDATE_STATE') return;
-          if (isListening) {
-            status.textContent = 'Escuchando...';
-            status.className = 'status listening';
-            sphere.className = 'sphere listening';
-            btnMic.classList.add('active');
-          } else if (isSpeaking) {
-            status.textContent = 'Hablando...';
-            status.className = 'status speaking';
-            sphere.className = 'sphere speaking';
-            btnStop.style.display = 'block';
-            btnMic.disabled = true;
-          } else {
-            status.textContent = '';
-            status.className = 'status';
-            sphere.className = 'sphere idle';
-            btnMic.classList.remove('active');
-            btnMic.disabled = false;
-            btnStop.style.display = 'none';
-          }
-          if (transcript !== currentTranscript || response !== currentResponse) {
-            currentTranscript = transcript;
-            currentResponse = response;
-            messagesDiv.innerHTML = '';
-            if (transcript) {
-              messagesDiv.innerHTML += \`
-                <div class="message-box transcript-box">
-                  <div class="label">👤 Tú dijiste:</div>
-                  <div>\${transcript}</div>
-                </div>
-              \`;
-            }
-            if (response) {
-              messagesDiv.innerHTML += \`
-                <div class="message-box response-box">
-                  <div class="label">🤖 ATHENIA responde:</div>
-                  <div>\${response}</div>
-                </div>
-              \`;
-            }
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-          }
-        });
+      const {
+        type,
+        isListening,
+        isSpeaking,
+        transcript,
+        response
+      } = event.data;
+      if (type !== 'UPDATE_STATE') return;
+      if (isListening) {
+        status.textContent = 'Escuchando...';
+        status.className = 'status listening';
+        sphere.className = 'sphere listening';
+        btnMic.classList.add('active');
+      } else if (isSpeaking) {
+        status.textContent = 'Hablando...';
+        status.className = 'status speaking';
+        sphere.className = 'sphere speaking';
+        btnStop.style.display = 'block';
+        btnMic.disabled = true;
+      } else {
+        status.textContent = '';
+        status.className = 'status';
+        sphere.className = 'sphere idle';
+        btnMic.classList.remove('active');
+        btnMic.disabled = false;
+        btnStop.style.display = 'none';
+      }
+      if (transcript !== currentTranscript || response !== currentResponse) {
+        currentTranscript = transcript;
+        currentResponse = response;
+        messagesDiv.innerHTML = '';
+        if (transcript) {
+          messagesDiv.innerHTML += \`
+            <div class="message-box transcript-box">
+              <div class="label">👤 Tú dijiste:</div>
+              <div>\${transcript}</div>
+            </div>
+          \`;
+        }
+        if (response) {
+          messagesDiv.innerHTML += \`
+            <div class="message-box response-box">
+              <div class="label">🤖 ATHENIA responde:</div>
+              <div>\${response}</div>
+            </div>
+          \`;
+        }
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+    });
 
-        document.addEventListener('keydown', (e) => e.key === 'Escape' && window.close());
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && window.close());
   </script>
 </body>
 
