@@ -200,24 +200,7 @@ class AtheniaService:
         # Paso 3: Obtener documentos del usuario
         user_documents = self._get_user_documents(db, user.id, document_ids)
         
-        # Paso 4: Manejar sin documentos
-        if not user_documents:
-            answer = "Sin documentos disponibles para responder tu pregunta. Por favor, sube documentos primero."
-            conv_id = self._save_to_history(
-                db, user.id, question, answer,
-                confidence=0.0, sources=[], from_cache=False,
-                processing_time_ms=round((time.time() - start_time) * 1000, 2),
-                conversation_id=conversation_id
-            )
-            
-            return {
-                "answer": answer,
-                "confidence": 0.0,
-                "sources": [],
-                "from_cache": False,
-                "processing_time_ms": round((time.time() - start_time) * 1000, 2),
-                "conversation_id": conv_id
-            }
+        
         
         # Paso 5: Consultar Gemini (miss de caché)
         answer, confidence, source_ids = self.rag_engine.query(
