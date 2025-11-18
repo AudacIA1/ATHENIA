@@ -20,6 +20,7 @@ export class AtheniaVoice implements OnDestroy {
   // Estado
   private isListening = false;
   private isSpeaking = false;
+  private isProcessing = false;
   private transcript = '';
   private response = '';
 
@@ -212,6 +213,9 @@ export class AtheniaVoice implements OnDestroy {
   /**
    * Configurar contenido HTML de la ventana popup
    **/
+  /**
+   * Configurar contenido HTML de la ventana popup
+   **/
   private setupPopupContent(): void {
     if (!this.popupWindow) return;
 
@@ -317,6 +321,11 @@ export class AtheniaVoice implements OnDestroy {
       font-weight: 600;
     }
 
+    .status.processing {
+      color: #3b82f6;
+      font-weight: 600;
+    }
+
     /* === Visualizador con neumorphism === */
     .visualizer {
       height: 240px;
@@ -389,6 +398,43 @@ export class AtheniaVoice implements OnDestroy {
       }
       50% {
         filter: brightness(1.3) saturate(1.5);
+      }
+    }
+
+    /* Estado PROCESANDO – Neumorphism azul pulsante */
+    .sphere.processing {
+      background: #1e293b;
+      box-shadow:
+        14px 14px 28px rgba(0, 0, 0, 0.6),
+        -14px -14px 28px rgba(30, 50, 80, 0.5),
+        inset 6px 6px 12px rgba(0, 0, 0, 0.4),
+        inset -6px -6px 12px rgba(59, 130, 246, 0.4),
+        0 0 100px rgba(59, 130, 246, 0.8),
+        0 0 160px rgba(37, 99, 235, 0.6);
+      animation: processingPulse 1.2s ease-in-out infinite;
+      transform: scale(1.08);
+    }
+
+    @keyframes processingPulse {
+      0%, 100% {
+        filter: brightness(1.2) saturate(1.4);
+        box-shadow:
+          14px 14px 28px rgba(0, 0, 0, 0.6),
+          -14px -14px 28px rgba(30, 50, 80, 0.5),
+          inset 6px 6px 12px rgba(0, 0, 0, 0.4),
+          inset -6px -6px 12px rgba(59, 130, 246, 0.4),
+          0 0 100px rgba(59, 130, 246, 0.8),
+          0 0 160px rgba(37, 99, 235, 0.6);
+      }
+      50% {
+        filter: brightness(1.4) saturate(1.6);
+        box-shadow:
+          16px 16px 32px rgba(0, 0, 0, 0.6),
+          -16px -16px 32px rgba(30, 50, 80, 0.5),
+          inset 6px 6px 12px rgba(0, 0, 0, 0.4),
+          inset -6px -6px 12px rgba(59, 130, 246, 0.5),
+          0 0 120px rgba(59, 130, 246, 0.9),
+          0 0 180px rgba(37, 99, 235, 0.7);
       }
     }
 
@@ -560,7 +606,7 @@ export class AtheniaVoice implements OnDestroy {
       background: #141d30;
     }
 
-    button:hover {
+    button:hover:not(:disabled) {
       transform: scale(1.05);
       opacity: 0.9;
     }
@@ -568,6 +614,7 @@ export class AtheniaVoice implements OnDestroy {
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      transform: scale(1);
     }
 
     /* Ocultar marcador flotante de Google */
@@ -625,23 +672,35 @@ export class AtheniaVoice implements OnDestroy {
     const status = document.getElementById('status');
     const sphere = document.getElementById('sphere');
     const messagesDiv = document.getElementById('messages');
+    
     btnMic.addEventListener('click', () => sendToParent('TOGGLE_LISTENING'));
     btnStop.addEventListener('click', () => sendToParent('STOP_SPEAKING'));
     btnClear.addEventListener('click', () => sendToParent('CLEAR'));
+    
     window.addEventListener('message', (event) => {
       const {
         type,
         isListening,
         isSpeaking,
+        isProcessing,
         transcript,
         response
       } = event.data;
+      
       if (type !== 'UPDATE_STATE') return;
-      if (isListening) {
+      
+      if (isProcessing) {
+        status.textContent = 'Procesando pregunta...';
+        status.className = 'status processing';
+        sphere.className = 'sphere processing';
+        btnMic.disabled = true;
+        btnStop.style.display = 'none';
+      } else if (isListening) {
         status.textContent = 'Escuchando...';
         status.className = 'status listening';
         sphere.className = 'sphere listening';
         btnMic.classList.add('active');
+        btnMic.disabled = false;
       } else if (isSpeaking) {
         status.textContent = 'Hablando...';
         status.className = 'status speaking';
@@ -656,6 +715,7 @@ export class AtheniaVoice implements OnDestroy {
         btnMic.disabled = false;
         btnStop.style.display = 'none';
       }
+
       if (transcript !== currentTranscript || response !== currentResponse) {
         currentTranscript = transcript;
         currentResponse = response;
@@ -715,6 +775,7 @@ export class AtheniaVoice implements OnDestroy {
           type: 'UPDATE_STATE',
           isListening: this.isListening,
           isSpeaking: this.isSpeaking,
+          isProcessing: this.isProcessing,
           transcript: this.transcript,
           response: this.response,
         },
@@ -752,6 +813,10 @@ export class AtheniaVoice implements OnDestroy {
   private startListening(): void {
     if (!this.recognition) {
       alert('Tu navegador no soporta reconocimiento de voz');
+      return;
+    }
+
+    if (this.isProcessing) {
       return;
     }
 
@@ -805,6 +870,9 @@ export class AtheniaVoice implements OnDestroy {
       return;
     }
 
+    this.isProcessing = true;
+    this.updatePopupState();
+
     // Enviar a ATHENIA
     const request: AtheniaQueryRequest = {
       question: question,
@@ -816,12 +884,14 @@ export class AtheniaVoice implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
+          this.isProcessing = false;
           this.response = response.answer;
           this.updatePopupState();
           this.speak(response.answer);
         },
         error: (error) => {
           console.error('Error:', error);
+          this.isProcessing = false;
           const errorMsg = 'Lo siento, hubo un error. Intenta de nuevo.';
           this.response = errorMsg;
           this.updatePopupState();

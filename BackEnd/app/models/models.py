@@ -363,6 +363,14 @@ class Document(Base, TimestampMixin):
         back_populates="document", 
         passive_deletes=True
     )
+
+    athenia_index = relationship(
+        "AtheniaDocumentIndex",
+        back_populates="document",
+        passive_deletes=True,  
+        uselist=False, 
+        cascade="all, delete-orphan"
+    )
     
     # Estado del documento
     status = Column(String(20), default="uploaded", nullable=False)
@@ -763,7 +771,10 @@ class AtheniaDocumentIndex(Base, TimestampMixin):
     last_indexed_at = Column(DateTime, nullable=True)
     error_message = Column(Text, nullable=True)
     
-    document = relationship("Document", backref="athenia_index")
+    document = relationship(
+        "Document",
+        back_populates="athenia_index"
+    )
     
     def __repr__(self):
         return f"<AtheniaDocumentIndex(doc={self.document_id}, indexed={self.is_indexed})>"

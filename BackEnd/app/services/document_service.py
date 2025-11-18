@@ -643,57 +643,82 @@ class DocumentService:
     @staticmethod
     def delete_document(doc_id: int, user, db: Session, ip: str = None) -> dict:
         """
-        Delete document with comprehensive error handling and cleanup
+        Elimina documento con manejo integral de errores y limpieza
+        
+        Args:
+            doc_id: ID del documento a eliminar
+            user: Usuario que solicita la eliminación
+            db: Sesión de base de datos
+            ip: Dirección IP del cliente (opcional)
+            
+        Returns:
+            dict con mensaje de confirmación y detalles del documento eliminado
+            
+        Raises:
+            HTTPException: Si hay errores de validación, permisos o base de datos
         """
         try:
+            # Validar ID
             if doc_id <= 0:
                 raise HTTPException(status_code=400, detail="ID de documento inválido")
 
+            # Obtener documento
             doc = crud.get_document_by_id(db, doc_id)
+            if not doc:
+                raise HTTPException(status_code=404, detail="Documento no encontrado")
+            
+            # Validar permisos
             DocumentService._validate_user_access(doc, user)
 
-            # Guardar información para logging
+            # Guardar información antes de eliminar (para logging y respuesta)
             filename = doc.filename
             doc_size = doc.size
+            file_path = getattr(doc, 'file_path', None)  # Si guardas ruta del archivo
 
-            with DocumentService.db_transaction(db):
-                # Intentar eliminar archivo físico (no crítico)
-                try:
-                    storage_service.delete_file(doc)
-                except Exception as e:
-                    logging.warning(f"No se pudo eliminar archivo físico doc {doc_id}: {e}")
-
-                # Registrar actividad antes de eliminar
+            try:
+                # 1. Registrar actividad ANTES de eliminar (mientras doc.id aún existe)
                 DocumentService._safe_activity_log(
-                    db, user_id=user.id, document_id=doc.id, action="delete", ip_address=ip
+                    db, 
+                    user_id=user.id, 
+                    document_id=doc.id, 
+                    action="delete", 
+                    ip_address=ip
                 )
-
-                # Eliminar documento de BD
+                
+                # 2. Eliminar de la base de datos
+                # Esto automáticamente eliminará registros en athenia_document_index por CASCADE
                 db.delete(doc)
-
-            logging.info(
-                f"Usuario {user.email} eliminó documento {filename} "
-                f"(ID: {doc_id}, Tamaño: {doc_size} bytes) desde IP {ip or 'unknown'}"
-            )
+                db.commit()
+                
+            except IntegrityError as e:
+                db.rollback()
+                raise HTTPException(
+                    status_code=409, 
+                    detail="No se puede eliminar el documento debido a restricciones de integridad"
+                )
+            except SQLAlchemyError as e:
+                db.rollback()
+                raise HTTPException(
+                    status_code=500, 
+                    detail="Error de base de datos al eliminar documento"
+                )
             
+        
             return {
                 "message": "Documento eliminado correctamente",
                 "document_id": doc_id,
-                "filename": filename
+                "filename": filename,
+                "size": doc_size
             }
             
         except DocumentNotFoundError:
             raise HTTPException(status_code=404, detail="Documento no encontrado")
         except DocumentAccessDeniedError:
             raise HTTPException(status_code=403, detail="No autorizado para eliminar este documento")
-        except IntegrityError as e:
-            logging.error(f"Integrity constraint error deleting doc {doc_id}: {e}")
-            raise HTTPException(status_code=409, detail="No se puede eliminar el documento debido a dependencias")
-        except SQLAlchemyError as e:
-            logging.error(f"Database error deleting doc {doc_id}: {e}")
-            raise HTTPException(status_code=500, detail="Error de base de datos al eliminar documento")
+        except HTTPException:
+            # Re-lanzar excepciones HTTP ya manejadas
+            raise
         except Exception as e:
-            logging.exception(f"Unexpected error deleting doc {doc_id}: {e}")
             raise HTTPException(status_code=500, detail="Error interno del servidor")
 
     @staticmethod
